@@ -1,0 +1,39 @@
+version: '3.8'
+
+networks:
+  app-tier:
+    external:
+      name: app-network
+
+services:
+  mysql:
+    container_name: ${MYSQL_CONTAINER_NAME}
+    image: 'bitnami/mysql:8.0'
+    ports:
+      - "${MYSQL_PORT}"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_COLLATE=${DB_COLLATE}
+      - MYSQL_CHARACTER_SET=${DB_CHARACTER_SET}
+      - MYSQL_AUTHENTICATION_PLUGIN=mysql_native_password
+    networks:
+      - app-tier
+  lumen:
+    container_name: ${LUMEN_CONTAINER_NAME}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENV: ${ENV}
+    volumes:
+      - ${LUMEN_VOLUME}
+    ports:
+      - "${LUMEN_PORT}:${LUMEN_PORT}"
+    command: php -S 0.0.0.0:${LUMEN_PORT} public/index.php
+    depends_on:
+      - mysql
+    networks:
+      - app-tier

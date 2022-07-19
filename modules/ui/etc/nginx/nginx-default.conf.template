@@ -1,0 +1,32 @@
+server {
+ listen 80;
+
+ server_name manager;
+
+ location / {
+   root /usr/share/nginx/html;
+   try_files $uri /index.html;
+ }
+
+ location /api {
+   proxy_pass http://${API_ORIGIN};
+   proxy_set_header Host $http_host;
+   proxy_cache_bypass $http_upgrade;
+   proxy_redirect off;
+ }
+
+ location /swagger-ui-assets {
+    proxy_pass http://${API_ORIGIN}/swagger-ui-assets;
+    proxy_set_header Host $http_host;
+    proxy_cache_bypass $http_upgrade;
+    proxy_redirect off;
+ }
+
+ location /docs {
+    proxy_pass http://${API_ORIGIN}/docs;
+    proxy_set_header Host $http_host;
+    proxy_cache_bypass $http_upgrade;
+    proxy_redirect off;
+ }
+
+}
